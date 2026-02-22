@@ -1,0 +1,29 @@
+- name: create ec2 and r53 records
+  hosts: local
+  connection: local
+  vars:
+    sg_id: sg-0ccccfdaa5d12d606
+    ami_id: ami-0220d79f3f480ecf5
+    env: dev
+    instances:
+     - mangodb
+     - catalog
+  tasks:
+  - name: create ec2 instances
+    amazon.aws.ec2_instance:
+      instance_type: "t3.micro"
+      security_group: "{{sg_id}}"
+      image_id: "{{ami_id}}"
+      name: "{{item}}-{{env}}"
+      tags:
+        project: roboshop
+        Component: "{{item}}"
+        Environment: {{env}}
+    loop: "{{instances}}"
+    register: ec2_output
+
+  - name: print the output 
+    ansible.builtin.debug:
+      msg: {{ec2_output}}
+      
+     
